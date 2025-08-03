@@ -1,35 +1,66 @@
-# Food_Mood-Bot
-An AI-powered food suggestion bot that recommends meals based on your current mood. Built using Node.js, Tailwind CSS, and Vite, this app is designed to deliver a personalized food discovery experience with the power of AI.
+# Food Mood Bot 🍽️
 
----
+A beautiful, AI-powered food suggestion bot that recommends perfect meals based on your current mood!
 
-## 🌟 Features
+## Features
 
-- 🎯 **Mood-Based Recommendations**: Enter how you're feeling, and get tailored food suggestions.
-- 🧠 **AI-Ready Integration**: Built to integrate with Google Gemini API for text suggestions and Imagen API for image generation.
-- 💅 **Modern UI**: Fully responsive design using Tailwind CSS and smooth loading animations.
-- 🍲 **Recipes Included**: Each suggestion comes with detailed ingredients and recipe descriptions.
-- 🧪 **Mock Data Demo**: Functional prototype using mock data to simulate real AI responses.
+- **Mood-Based Suggestions**: Enter your mood and get personalized food recommendations
+- **Beautiful UI**: Modern, responsive design with Tailwind CSS
+- **AI Integration Ready**: Built to work with Gemini API and Imagen API
+- **Loading States**: Smooth user experience with animated loading states
+- **Image Generation**: Displays beautiful food images for each suggestion
+- **Detailed Recipes**: Shows ingredients and descriptions for each food suggestion
 
----
+## Current Implementation
 
-## 📦 Tech Stack
+The app currently uses mock data to demonstrate functionality. To use real AI APIs:
 
-| Layer       | Technology          |
-|-------------|---------------------|
-| Frontend    | HTML, CSS (Tailwind), JavaScript |
-| Backend     | Node.js, Express     |
-| API Ready   | Google Gemini API, Google Imagen API |
-| Tooling     | Vite, TypeScript     |
+1. Get API keys for:
+   - Google Gemini API (for food suggestions)
+   - Google Imagen API (for image generation)
 
----
+2. Add your API keys to the `.env` file:
+   ```
+   GEMINI_API_KEY=your_gemini_api_key_here
+   IMAGEN_API_KEY=your_imagen_api_key_here
+   ```
 
-## 🚀 How to Run Locally
+3. Replace the mock functions in `server.js` with actual API calls
 
-### 1. Clone the repo:
-```bash
-git clone https://github.com/your-username/food-mood-bot.git
-cd food-mood-bot
-##Install dependencies:
-npm install
+## How to Run
 
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Start the server:
+   ```bash
+   node server.js
+   ```
+
+3. Open your browser to `http://localhost:3000`
+
+## Mock Moods Available
+
+The current mock implementation responds to these moods:
+- happy
+- sad
+- stressed
+- energetic
+- romantic
+
+## Tech Stack
+
+- **Backend**: Node.js + Express
+- **Frontend**: HTML, CSS (Tailwind), Vanilla JavaScript
+- **APIs**: Ready for Gemini API and Imagen API integration
+- **Styling**: Tailwind CSS with custom animations
+
+## API Endpoints
+
+- `POST /api/suggest-food`: Get food suggestion based on mood
+  - Body: `{ "mood": "your_mood_here" }`
+  - Returns: Food name, description, ingredients, and image URL
+
+Enjoy discovering your perfect mood food! 🎉

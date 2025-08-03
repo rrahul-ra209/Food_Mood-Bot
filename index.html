@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Mood Bot - Get Perfect Food Suggestions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'bounce-slow': 'bounce 2s infinite',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.6s ease-out'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .food-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-12 animate-fade-in">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full shadow-lg mb-6">
+                <span class="text-4xl">🍴</span>
+            </div>
+            <h1 class="text-5xl font-bold text-white mb-4">Restaurant Menu Bot</h1>
+            <p class="text-xl text-white/90 max-w-2xl mx-auto">
+                Choose a category and let us suggest the perfect dish for you, 
+                complete with beautiful images and detailed descriptions!
+            </p>
+        </div>
+
+        <!-- Category Selection -->
+        <div class="max-w-2xl mx-auto mb-12">
+            <div class="food-card rounded-2xl p-8 shadow-2xl">
+                <div class="mb-6">
+                    <label class="block text-lg font-semibold text-gray-700 mb-4">
+                        What would you like to try today?
+                    </label>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <button class="category-btn bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105" data-category="starters">
+                            <div class="text-2xl mb-2">🥗</div>
+                            Starters
+                        </button>
+                        <button class="category-btn bg-gradient-to-r from-blue-400 to-cyan-500 hover:from-blue-500 hover:to-cyan-600 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105" data-category="drinks">
+                            <div class="text-2xl mb-2">🍹</div>
+                            Drinks
+                        </button>
+                        <button class="category-btn bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105" data-category="mains">
+                            <div class="text-2xl mb-2">🍖</div>
+                            Main Courses
+                        </button>
+                        <button class="category-btn bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105" data-category="desserts">
+                            <div class="text-2xl mb-2">🍰</div>
+                            Desserts
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Questions Section (Hidden initially) -->
+                <div id="questions-section" class="hidden">
+                    <h3 id="category-title" class="text-xl font-semibold text-gray-700 mb-4"></h3>
+                    <div id="questions-container" class="space-y-3 mb-6"></div>
+                    <button 
+                        id="get-suggestion-btn"
+                        class="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    >
+                        Get My Recommendation ✨
+                    </button>
+                    <button 
+                        id="back-btn"
+                        class="w-full mt-3 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300"
+                    >
+                        ← Back to Categories
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="hidden max-w-2xl mx-auto mb-12">
+            <div class="food-card rounded-2xl p-8 shadow-2xl text-center">
+                <div class="animate-bounce-slow mb-4">
+                    <span class="text-6xl">🤖</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-700 mb-2">
+                    Finding your perfect dish<span class="loading-dots"></span>
+                </h3>
+                <p class="text-gray-600">
+                    Our AI chef is selecting the perfect recommendation just for you!
+                </p>
+                <div class="mt-6">
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-purple-600 to-blue-600 h-2 rounded-full animate-pulse" style="width: 70%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results" class="hidden max-w-4xl mx-auto">
+            <div class="food-card rounded-2xl p-8 shadow-2xl animate-slide-up">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Image Section -->
+                    <div class="order-2 md:order-1">
+                        <div class="relative overflow-hidden rounded-xl shadow-lg">
+                            <img 
+                                id="food-image" 
+                                src="" 
+                                alt="Generated food image"
+                                class="w-full h-80 object-cover transition-transform duration-300 hover:scale-105"
+                            >
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Content Section -->
+                    <div class="order-1 md:order-2">
+                        <div class="mb-4">
+                            <span id="category-badge" class="inline-block px-4 py-2 bg-purple-100 text-purple-800 rounded-full text-sm font-semibold mb-4"></span>
+                        </div>
+                        <h2 id="food-name" class="text-3xl font-bold text-gray-800 mb-4"></h2>
+                        <p id="food-description" class="text-gray-600 mb-6 leading-relaxed"></p>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+                                <span class="mr-2">🥘</span>
+                                Ingredients
+                            </h3>
+                            <div id="ingredients-list" class="grid grid-cols-2 gap-2"></div>
+                        </div>
+                        
+                        <button 
+                            id="try-again-btn"
+                            class="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"
+                        >
+                            Try Another Category 🔄
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-16 text-white/80">
+            <p>Made with ❤️ and AI • Perfect recommendations for every craving</p>
+        </div>
+    </div>
+
+    <script>
+        class RestaurantMenuBot {
+            constructor() {
+                this.categoryBtns = document.querySelectorAll('.category-btn');
+                this.questionsSection = document.getElementById('questions-section');
+                this.categoryTitle = document.getElementById('category-title');
+                this.questionsContainer = document.getElementById('questions-container');
+                this.getSuggestionBtn = document.getElementById('get-suggestion-btn');
+                this.backBtn = document.getElementById('back-btn');
+                this.loading = document.getElementById('loading');
+                this.results = document.getElementById('results');
+                this.tryAgainBtn = document.getElementById('try-again-btn');
+                
+                this.selectedCategory = '';
+                this.selectedAnswers = {};
+                
+                this.initEventListeners();
+                this.questions = this.getQuestions();
+            }
+
+            initEventListeners() {
+                this.categoryBtns.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.selectedCategory = e.currentTarget.dataset.category;
+                        this.showQuestions();
+                    });
+                });
+                
+                this.getSuggestionBtn.addEventListener('click', () => this.getSuggestion());
+                this.backBtn.addEventListener('click', () => this.showCategories());
+                this.tryAgainBtn.addEventListener('click', () => this.resetForm());
+            }
+
+            getQuestions() {
+                return {
+                    starters: {
+                        title: "Tell us about your starter preferences:",
+                        questions: [
+                            { id: 'appetite', text: 'How hungry are you?', options: ['Light appetite', 'Moderately hungry', 'Very hungry'] },
+                            { id: 'flavor', text: 'What flavors do you prefer?', options: ['Fresh & light', 'Rich & creamy', 'Spicy & bold'] },
+                            { id: 'sharing', text: 'Are you sharing?', options: ['Just for me', 'Sharing with 2-3 people', 'Large group'] }
+                        ]
+                    },
+                    drinks: {
+                        title: "Let's find your perfect drink:",
+                        questions: [
+                            { id: 'type', text: 'What type of drink?', options: ['Non-alcoholic', 'Wine', 'Cocktail', 'Beer'] },
+                            { id: 'mood', text: 'What\'s the occasion?', options: ['Casual dining', 'Celebration', 'Relaxing', 'Business meeting'] },
+                            { id: 'flavor', text: 'Flavor preference?', options: ['Sweet', 'Sour/Tart', 'Bitter', 'Fruity'] }
+                        ]
+                    },
+                    mains: {
+                        title: "Help us choose your main course:",
+                        questions: [
+                            { id: 'protein', text: 'Preferred protein?', options: ['Chicken', 'Beef', 'Fish/Seafood', 'Vegetarian', 'Pork'] },
+                            { id: 'cooking', text: 'Cooking style?', options: ['Grilled', 'Fried', 'Roasted', 'Steamed', 'Raw/Sashimi'] },
+                            { id: 'spice', text: 'Spice level?', options: ['Mild', 'Medium', 'Spicy', 'Very spicy'] }
+                        ]
+                    },
+                    desserts: {
+                        title: "Sweet endings await:",
+                        questions: [
+                            { id: 'sweetness', text: 'How sweet?', options: ['Lightly sweet', 'Moderately sweet', 'Very sweet'] },
+                            { id: 'texture', text: 'Preferred texture?', options: ['Creamy', 'Crunchy', 'Fluffy', 'Dense'] },
+                            { id: 'temperature', text: 'Temperature preference?', options: ['Cold/Frozen', 'Room temperature', 'Warm'] }
+                        ]
+                    }
+                };
+            }
+
+            showQuestions() {
+                const categoryData = this.questions[this.selectedCategory];
+                this.categoryTitle.textContent = categoryData.title;
+                
+                this.questionsContainer.innerHTML = '';
+                this.selectedAnswers = {};
+                
+                categoryData.questions.forEach((question, index) => {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.className = 'mb-4';
+                    
+                    questionDiv.innerHTML = `
+                        <label class="block text-sm font-medium text-gray-700 mb-2">${question.text}</label>
+                        <select class="question-select w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-300" data-question="${question.id}">
+                            <option value="">Choose an option...</option>
+                            ${question.options.map(option => `<option value="${option}">${option}</option>`).join('')}
+                        </select>
+                    `;
+                    
+                    this.questionsContainer.appendChild(questionDiv);
+                });
+                
+                // Add event listeners to selects
+                this.questionsContainer.querySelectorAll('.question-select').forEach(select => {
+                    select.addEventListener('change', (e) => {
+                        this.selectedAnswers[e.target.dataset.question] = e.target.value;
+                        this.updateSuggestionButton();
+                    });
+                });
+                
+                this.questionsSection.classList.remove('hidden');
+                this.updateSuggestionButton();
+            }
+
+            showCategories() {
+                this.questionsSection.classList.add('hidden');
+                this.selectedCategory = '';
+                this.selectedAnswers = {};
+            }
+
+            updateSuggestionButton() {
+                const categoryData = this.questions[this.selectedCategory];
+                const answeredQuestions = Object.keys(this.selectedAnswers).filter(key => this.selectedAnswers[key]);
+                const allAnswered = answeredQuestions.length === categoryData.questions.length;
+                
+                this.getSuggestionBtn.disabled = !allAnswered;
+            }
+
+            async getSuggestion() {
+                if (!this.selectedCategory || Object.keys(this.selectedAnswers).length === 0) {
+                    this.showError('Please answer all questions first!');
+                    return;
+                }
+
+                this.showLoading();
+
+                try {
+                    const response = await fetch('/api/suggest-food', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            category: this.selectedCategory,
+                            answers: this.selectedAnswers
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to get suggestion');
+                    }
+
+                    const data = await response.json();
+                    this.showResults(data);
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showError('Oops! Something went wrong. Please try again.');
+                }
+            }
+
+            showLoading() {
+                this.getSuggestionBtn.disabled = true;
+                this.results.classList.add('hidden');
+                this.loading.classList.remove('hidden');
+            }
+
+            showResults(data) {
+                this.loading.classList.add('hidden');
+                
+                // Populate results
+                document.getElementById('category-badge').textContent = `${data.category.charAt(0).toUpperCase() + data.category.slice(1)}`;
+                document.getElementById('food-name').textContent = data.name;
+                document.getElementById('food-description').textContent = data.description;
+                document.getElementById('food-image').src = data.imageUrl;
+                document.getElementById('food-image').alt = data.name;
+                
+                // Populate ingredients
+                const ingredientsList = document.getElementById('ingredients-list');
+                ingredientsList.innerHTML = '';
+                data.ingredients.forEach(ingredient => {
+                    const span = document.createElement('span');
+                    span.className = 'bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm';
+                    span.textContent = ingredient;
+                    ingredientsList.appendChild(span);
+                });
+                
+                this.results.classList.remove('hidden');
+                
+                // Reset button
+                this.getSuggestionBtn.disabled = false;
+            }
+
+            showError(message) {
+                this.loading.classList.add('hidden');
+                this.getSuggestionBtn.disabled = false;
+                
+                alert(message); // In production, use a better notification system
+            }
+
+            resetForm() {
+                this.showCategories();
+                this.results.classList.add('hidden');
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new RestaurantMenuBot();
+        });
+    </script>
+</body>
+</html>
+
+            async getSuggestion() {
+                const mood = this.moodInput.value.trim();
+                
+                if (!mood) {
+                    this.showError('Please enter your mood first!');
+                    return;
+                }
+
+                this.showLoading();
+
+                try {
+                    const response = await fetch('/api/suggest-food', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ mood })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to get suggestion');
+                    }
+
+                    const data = await response.json();
+                    this.showResults(data);
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showError('Oops! Something went wrong. Please try again.');
+                }
+            }
+
+            showLoading() {
+                this.suggestBtn.disabled = true;
+                this.btnText.textContent = 'Getting suggestion...';
+                this.results.classList.add('hidden');
+                this.loading.classList.remove('hidden');
+            }
+
+            showResults(data) {
+                this.loading.classList.add('hidden');
+                
+                // Populate results
+                document.getElementById('mood-badge').textContent = `Mood: ${data.mood}`;
+                document.getElementById('food-name').textContent = data.name;
+                document.getElementById('food-description').textContent = data.description;
+                document.getElementById('food-image').src = data.imageUrl;
+                document.getElementById('food-image').alt = data.name;
+                
+                // Populate ingredients
+                const ingredientsList = document.getElementById('ingredients-list');
+                ingredientsList.innerHTML = '';
+                data.ingredients.forEach(ingredient => {
+                    const span = document.createElement('span');
+                    span.className = 'bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm';
+                    span.textContent = ingredient;
+                    ingredientsList.appendChild(span);
+                });
+                
+                this.results.classList.remove('hidden');
+                
+                // Reset button
+                this.suggestBtn.disabled = false;
+                this.btnText.textContent = 'Get My Food Suggestion ✨';
+            }
+
+            showError(message) {
+                this.loading.classList.add('hidden');
+                this.suggestBtn.disabled = false;
+                this.btnText.textContent = 'Get My Food Suggestion ✨';
+                
+                alert(message); // In production, use a better notification system
+            }
+
+            resetForm() {
+                this.moodInput.value = '';
+                this.moodInput.focus();
+                this.results.classList.add('hidden');
+                this.suggestBtn.disabled = true;
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new FoodMoodBot();
+        });
+    </script>
+</body>
+</html>
